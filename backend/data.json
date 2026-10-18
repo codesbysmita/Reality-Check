@@ -1,0 +1,26 @@
+{
+  "commitments": [
+    {
+      "id": "f534fa70-5367-455b-a629-87c4322bcbbc",
+      "title": "zvukawvxuifi",
+      "category": "Personal",
+      "plannedMinutes": 31,
+      "dueAt": null,
+      "status": "In progress",
+      "actualMinutes": null,
+      "note": "",
+      "createdAt": "2026-10-16T13:25:36.976Z"
+    },
+    {
+      "id": "bcd6ad6a-3b31-4850-818e-002a0ec682d3",
+      "title": "study for exams",
+      "category": "Personal",
+      "plannedMinutes": 30,
+      "dueAt": null,
+      "status": "In progress",
+      "actualMinutes": null,
+      "note": "",
+      "createdAt": "2026-10-16T13:37:17.114Z"
+    }
+  ]
+}
