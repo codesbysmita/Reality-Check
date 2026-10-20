@@ -76,6 +76,11 @@ function App() {
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(true);
   const [savingCommitment, setSavingCommitment] = useState(false);
+  const [savingOutcome, setSavingOutcome] = useState(false);
+  const [outcomeFormId, setOutcomeFormId] = useState(null);
+  const [actualMinutes, setActualMinutes] = useState('');
+  const [outcomeStatus, setOutcomeStatus] = useState('Completed');
+  const [outcomeNote, setOutcomeNote] = useState('');
   const [runningCheck, setRunningCheck] = useState(false);
   const [nextStepAdded, setNextStepAdded] = useState(false);
 
@@ -178,7 +183,50 @@ function App() {
       setSavingCommitment(false);
     }
   }
+async function saveOutcome(event, commitmentId) {
+  event.preventDefault();
 
+  const duration =
+    actualMinutes.trim() === '' ? null : Number(actualMinutes);
+
+  if (
+    actualMinutes.trim() !== '' &&
+    (!Number.isFinite(duration) || duration < 0 || duration > 100000)
+  ) {
+    setApiError('Enter a valid actual duration between 0 and 100000 minutes.');
+    return;
+  }
+
+  setSavingOutcome(true);
+  setApiError('');
+
+  const payload = {
+    status: outcomeStatus,
+    note: outcomeNote.trim(),
+  };
+
+  // Only send actualMinutes when the field is not empty.
+  if (duration !== null) {
+    payload.actualMinutes = duration;
+  }
+
+  try {
+    await realityCheckApi.updateOutcome(commitmentId, payload);
+
+    await loadDashboard();
+
+    setOutcomeFormId(null);
+    setActualMinutes('');
+    setOutcomeStatus('Completed');
+    setOutcomeNote('');
+  } catch (error) {
+    setApiError(
+      error.message || 'Could not save the commitment outcome.'
+    );
+  } finally {
+    setSavingOutcome(false);
+  }
+}
   const todayLabel = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -668,146 +716,278 @@ function App() {
             </div>
           </section>
 
-          <section className="commitments-section">
-            <SectionHeading
-              eyebrow="THE RECEIPTS"
-              title="Recent commitments"
-              detail="Intentions only become useful when you can compare them with outcomes."
-              action={
-                <button
-                  className="text-button"
-                  onClick={() => setActiveNav('Commitments')}
-                >
-                  View all <ArrowRight size={15} />
-                </button>
-              }
-            />
+                    <SectionHeading
+  eyebrow="THE RECEIPTS"
+  title="Recent commitments"
+  detail="Intentions only become useful when you can compare them with outcomes."
+  action={
+    <button
+      className="text-button"
+      onClick={() => setActiveNav('Commitments')}
+    >
+      View all <ArrowRight size={15} />
+    </button>
+  }
+/>
 
-            <div className="commitments-card">
-              <div className="commitment-table-head">
-                <span>COMMITMENT</span>
-                <span>PLANNED</span>
-                <span>WHEN</span>
-                <span>STATUS</span>
-              </div>
+<div className="commitments-card">
+  <div className="commitment-table-head">
+    <span>COMMITMENT</span>
+    <span>PLANNED</span>
+    <span>WHEN</span>
+    <span>STATUS</span>
+  </div>
 
-              {dashboard.commitments.slice(0, 4).map((item) => (
-                <div className="commitment-row" key={item.id}>
-                  <div className="commitment-title">
-                    <span
-                      className={`commitment-marker ${
-                        item.status === 'Completed'
-                          ? 'marker-complete'
-                          : item.status === 'Postponed'
-                            ? 'marker-postponed'
-                            : ''
-                      }`}
-                    >
-                      {item.status === 'Completed' ? (
-                        <Check size={13} />
-                      ) : item.status === 'Postponed' ? (
-                        <History size={12} />
-                      ) : (
-                        <Clock3 size={12} />
-                      )}
-                    </span>
+  {dashboard.commitments.slice(0, 4).map((item) => {
+    const hasActualTime =
+      item.actualMinutes !== null &&
+      item.actualMinutes !== undefined &&
+      item.actualMinutes !== '';
 
-                    <div>
-                      <strong>{item.title}</strong>
-                      <span>{item.category}</span>
-                    </div>
-                  </div>
+    const hasPlannedTime =
+      item.plannedMinutes !== null &&
+      item.plannedMinutes !== undefined &&
+      item.plannedMinutes !== '';
 
-                  <span className="planned-time">
-                    {item.planned ||
-                      `${item.plannedMinutes ?? '—'} min`}
-                  </span>
-                  <span className="when-label">
-                    {item.when ||
-                      (item.createdAt
-                        ? new Date(item.createdAt).toLocaleDateString()
-                        : '—')}
-                  </span>
+    const timeDifference =
+      hasActualTime && hasPlannedTime
+        ? Number(item.actualMinutes) - Number(item.plannedMinutes)
+        : null;
 
-                  <span>
-                    <Pill
-                      tone={
-                        item.status === 'Completed'
-                          ? 'green'
-                          : item.status === 'Postponed'
-                            ? 'amber'
-                            : 'neutral'
-                      }
-                    >
-                      {item.status}
-                    </Pill>
-                  </span>
-                </div>
-              ))}
-
-              {!loading && dashboard.commitments.length === 0 && (
-                <div className="empty-state">
-                  No commitments yet. Add your first one to get started.
-                </div>
+    return (
+      <div className="commitment-entry" key={item.id}>
+        <div className="commitment-row">
+          <div className="commitment-title">
+            <span
+              className={`commitment-marker ${
+                item.status === 'Completed'
+                  ? 'marker-complete'
+                  : item.status === 'Postponed'
+                    ? 'marker-postponed'
+                    : ''
+              }`}
+            >
+              {item.status === 'Completed' ? (
+                <Check size={13} />
+              ) : item.status === 'Postponed' ? (
+                <History size={12} />
+              ) : (
+                <Clock3 size={12} />
               )}
+            </span>
 
-              <div className="commitment-table-foot">
-                <span>
-                  {dashboard.commitments.length} saved commitment
-                  {dashboard.commitments.length === 1 ? '' : 's'}
-                </span>
-
-                <button
-                  className="add-commitment-button"
-                  onClick={() => setShowAddForm((value) => !value)}
-                >
-                  {showAddForm ? (
-                    <X size={15} />
-                  ) : (
-                    <Plus size={15} />
-                  )}
-                  {showAddForm ? 'Cancel' : 'Add a commitment'}
-                </button>
-              </div>
-
-              {showAddForm && (
-                <form className="add-form" onSubmit={addCommitment}>
-                  <input
-                    value={newCommitment}
-                    onChange={(event) =>
-                      setNewCommitment(event.target.value)
-                    }
-                    placeholder="What will you commit to?"
-                    aria-label="New commitment"
-                    required
-                  />
-
-                  <input
-                    type="number"
-                    min="1"
-                    value={plannedMinutes}
-                    onChange={(event) =>
-                      setPlannedMinutes(event.target.value)
-                    }
-                    placeholder="Minutes"
-                    aria-label="Planned duration in minutes"
-                    required
-                  />
-
-                  <button
-                    className="primary-button"
-                    type="submit"
-                    disabled={savingCommitment}
-                  >
-                    {savingCommitment
-                      ? 'Saving…'
-                      : 'Save commitment'}
-                    <ArrowRight size={15} />
-                  </button>
-                </form>
-              )}
+            <div>
+              <strong>{item.title}</strong>
+              <span>{item.category}</span>
             </div>
-          </section>
+          </div>
+
+          <span className="planned-time">
+            {item.planned ||
+              `${item.plannedMinutes ?? '—'} min`}
+          </span>
+
+          <span className="when-label">
+            {item.when ||
+              (item.createdAt
+                ? new Date(item.createdAt).toLocaleDateString()
+                : '—')}
+          </span>
+
+          <span>
+            <Pill
+              tone={
+                item.status === 'Completed'
+                  ? 'green'
+                  : item.status === 'Postponed'
+                    ? 'amber'
+                    : 'neutral'
+              }
+            >
+              {item.status}
+            </Pill>
+          </span>
+        </div>
+
+        {/* Saved outcome details */}
+        <div className="outcome-summary">
+          <span>
+            Actual: {hasActualTime ? `${item.actualMinutes} min` : 'Not logged'}
+          </span>
+
+          {timeDifference !== null && (
+            <span>
+              Difference: {timeDifference > 0 ? '+' : ''}
+              {timeDifference} min
+              {timeDifference > 0
+                ? ' over planned'
+                : timeDifference < 0
+                  ? ' under planned'
+                  : ' on time'}
+            </span>
+          )}
+
+          {item.note && (
+            <p>
+              <strong>Note:</strong> {item.note}
+            </p>
+          )}
+        </div>
+
+        {/* Toggle outcome form */}
+        <div className="outcome-actions">
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => {
+              if (outcomeFormId === item.id) {
+                setOutcomeFormId(null);
+              } else {
+                setOutcomeFormId(item.id);
+                setActualMinutes(item.actualMinutes ?? '');
+                setOutcomeNote(item.note ?? '');
+                setOutcomeStatus(
+                  ['Completed', 'Postponed', 'Missed'].includes(item.status)
+                    ? item.status
+                    : 'Completed'
+                );
+              }
+            }}
+          >
+            {outcomeFormId === item.id
+              ? 'Cancel'
+              : hasActualTime
+                ? 'Edit outcome'
+                : 'Log outcome'}
+          </button>
+        </div>
+
+        {/* Outcome form */}
+        {outcomeFormId === item.id && (
+          <form
+            className="add-form outcome-form"
+            onSubmit={(event) => saveOutcome(event, item)}
+          >
+            <label>
+              Outcome status
+              <select
+                value={outcomeStatus}
+                onChange={(event) =>
+                  setOutcomeStatus(event.target.value)
+                }
+                required
+              >
+                <option value="Completed">Completed</option>
+                <option value="Postponed">Postponed</option>
+                <option value="Missed">Missed</option>
+              </select>
+            </label>
+
+            <label>
+              Actual time spent (minutes)
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={actualMinutes}
+                onChange={(event) =>
+                  setActualMinutes(event.target.value)
+                }
+                placeholder="e.g. 40"
+                required
+              />
+            </label>
+
+            <label>
+              Notes
+              <textarea
+                value={outcomeNote}
+                onChange={(event) =>
+                  setOutcomeNote(event.target.value)
+                }
+                placeholder="What actually happened? Any distractions or reasons for delay?"
+                rows={3}
+              />
+            </label>
+
+            <button
+              className="primary-button"
+              type="submit"
+              disabled={savingOutcome}
+            >
+              {savingOutcome ? 'Saving outcome…' : 'Save outcome'}
+              <ArrowRight size={15} />
+            </button>
+          </form>
+        )}
+      </div>
+    );
+  })}
+
+  {!loading && dashboard.commitments.length === 0 && (
+    <div className="empty-state">
+      No commitments yet. Add your first one to get started.
+    </div>
+  )}
+
+  <div className="commitment-table-foot">
+    <span>
+      {dashboard.commitments.length} saved commitment
+      {dashboard.commitments.length === 1 ? '' : 's'}
+    </span>
+
+    <button
+      className="add-commitment-button"
+      onClick={() => setShowAddForm((value) => !value)}
+    >
+      {showAddForm ? (
+        <X size={15} />
+      ) : (
+        <Plus size={15} />
+      )}
+
+      {showAddForm ? 'Cancel' : 'Add a commitment'}
+    </button>
+  </div>
+
+  {showAddForm && (
+    <form
+      className="add-form"
+      onSubmit={addCommitment}
+    >
+      <input
+        value={newCommitment}
+        onChange={(event) =>
+          setNewCommitment(event.target.value)
+        }
+        placeholder="What will you commit to?"
+        aria-label="New commitment"
+        required
+      />
+
+      <input
+        type="number"
+        min="1"
+        value={plannedMinutes}
+        onChange={(event) =>
+          setPlannedMinutes(event.target.value)
+        }
+        placeholder="Minutes"
+        aria-label="Planned duration in minutes"
+        required
+      />
+
+      <button
+        className="primary-button"
+        type="submit"
+        disabled={savingCommitment}
+      >
+        {savingCommitment ? 'Saving…' : 'Save commitment'}
+        <ArrowRight size={15} />
+      </button>
+    </form>
+  )}
+</div>
 
           <footer className="footer">
             <div className="footer-brand">
