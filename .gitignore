@@ -1,5 +1,12 @@
-node_modules/
+﻿node_modules/
 dist/
 .env
 .env.*
 !.env.example
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local backend data and backup files
+backend/data.json
+*.bak

@@ -5,3 +5,87 @@
 @media(max-width:1180px){.sidebar{width:218px}.main-content{margin-left:218px}.topbar{padding:0 28px}.page-wrap{padding:26px 28px}.flow-strip{gap:5px}.flow-step{gap:4px}.flow-step strong{font-size:8px}.commitment-table-head,.commitment-row{grid-template-columns:minmax(170px,2fr) minmax(70px,.7fr) minmax(65px,.7fr) minmax(90px,.8fr);gap:8px;padding-left:13px;padding-right:13px}}
 @media(max-width:900px){.sidebar{width:68px;padding:22px 9px 15px}.brand{padding:0 6px 40px}.brand>div:last-child,.workspace-label,.nav-item span:not(.nav-dot),.privacy-card,.profile-copy,.profile-button>svg{display:none}.nav-item{justify-content:center;padding:0}.nav-dot{position:absolute;transform:translate(15px,-14px)}.profile-button{justify-content:center}.main-content{margin-left:68px}.topbar{padding:0 22px}.page-wrap{padding:24px 22px}.reality-layout{grid-template-columns:1fr}.decision-panel,.insight-panel{padding:18px}.flow-strip{overflow-x:auto}.flow-step strong{font-size:9px}.flow-connector{min-width:12px}.welcome-row h1{font-size:34px}.commitment-table-head,.commitment-row{grid-template-columns:minmax(150px,2fr) minmax(70px,.7fr) minmax(65px,.7fr) minmax(90px,.8fr)}}
 @media(max-width:620px){.sidebar{display:none}.main-content{margin-left:0}.topbar{height:58px;padding:0 16px}.mobile-brand{display:flex;align-items:center;gap:8px;font:800 14px 'Manrope',sans-serif;letter-spacing:-.5px;color:#2d392f}.mobile-brand .brand-mark{width:28px;height:28px;border-radius:8px}.breadcrumb{display:none}.topbar-right{font-size:10px}.icon-button{margin-left:0}.page-wrap{padding:18px 14px 20px}.demo-banner{align-items:flex-start;padding:10px;margin-bottom:23px}.demo-banner div:nth-child(2){display:grid;gap:3px}.demo-banner span{line-height:1.45}.welcome-row{align-items:flex-start;margin-bottom:20px}.welcome-row h1{font-size:32px;letter-spacing:-1.4px;margin-top:12px}.intro-copy{font-size:11px}.date-chip{display:none}.stats-grid{gap:8px;margin-bottom:30px}.stat-card{padding:12px 10px;min-height:111px}.stat-top{font-size:9px;align-items:flex-start;gap:3px}.stat-icon{width:23px;height:23px;flex-shrink:0}.stat-number{font-size:23px;margin:12px 0 7px}.stat-foot{font-size:8px;line-height:1.4;align-items:flex-start}.section-heading h2{font-size:20px}.section-heading p{font-size:10px;max-width:270px}.section-heading>.pill{align-self:flex-start;margin-top:18px}.decision-panel,.insight-panel{padding:15px}.decision-panel label{font-size:14px}.flow-strip{margin-left:-2px;margin-right:-2px;padding:11px 10px}.flow-step strong{font-size:8px}.flow-step.current{padding:6px}.recommendation-grid{grid-template-columns:1fr;gap:10px;margin-bottom:30px}.recommendation-card{padding:16px}.commitment-table-head{display:none}.commitment-row{grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;padding:12px}.commitment-title{grid-column:1;grid-row:1 / span 2}.commitment-row>.planned-time{grid-column:2;grid-row:1;text-align:right}.commitment-row>.when-label{display:none}.commitment-row>span:last-child{grid-column:2;grid-row:2;justify-self:end}.commitment-table-foot{padding:11px 12px}.commitment-table-foot>span{max-width:140px;line-height:1.4}.add-form{padding:0 12px 13px;flex-wrap:wrap}.add-form input{flex-basis:100%}.footer{flex-wrap:wrap;gap:8px}.footer>span:nth-child(2){margin-left:0}.footer-demo{width:100%;margin:3px 0 0}.comparison{gap:7px}.comparison-value{font-size:24px}}
+/* Individual commitment container */
+.commitment-entry {
+  border-bottom: 1px solid var(--border, #e5e5e5);
+}
+
+.commitment-entry .commitment-row {
+  border-bottom: none;
+}
+
+/* Outcome information */
+.outcome-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  padding: 8px 16px 10px 48px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted, #777);
+}
+
+.outcome-summary p {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.outcome-summary p strong {
+  color: var(--text, #222);
+}
+
+/* Edit outcome button */
+.outcome-actions {
+  padding: 0 16px 12px 48px;
+}
+
+.outcome-actions .text-button {
+  font-size: 12px;
+}
+
+/* Outcome form */
+.outcome-form {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-top: 1px solid var(--border, #e5e5e5);
+}
+
+.outcome-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.outcome-form input,
+.outcome-form select,
+.outcome-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #dcdcdc);
+  border-radius: 8px;
+  background: var(--card, #fff);
+  color: var(--text, #222);
+  font: inherit;
+}
+
+.outcome-form textarea {
+  resize: vertical;
+}
+
+.outcome-form .primary-button {
+  justify-self: start;
+}
+
+@media (max-width: 600px) {
+  .outcome-summary,
+  .outcome-actions {
+    padding-left: 16px;
+  }
+}
